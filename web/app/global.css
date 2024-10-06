@@ -2,9 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: #121212;
+  --foreground: #ededed;
+}
+
 html,
 body {
   height: 100%;
+  color: var(--foreground);
+  background: var(--background);
 }
 
 .wallet-adapter-button-trigger {

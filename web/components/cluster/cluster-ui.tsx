@@ -161,7 +161,7 @@ export function ClusterUiTable() {
         </thead>
         <tbody>
           {clusters.map((item) => (
-            <tr key={item.name} className={item?.active ? 'bg-base-200' : ''}>
+            <tr key={item.name} className={item?.active ? 'bg-background' : ''}>
               <td className="space-y-2">
                 <div className="whitespace-nowrap space-x-2">
                   <span className="text-xl">

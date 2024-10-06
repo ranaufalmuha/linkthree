@@ -11,7 +11,15 @@ module.exports = {
     ...createGlobPatternsForDependencies(__dirname),
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+
+        "disabled": "#808080",
+
+      }
+    },
   },
   plugins: [require('daisyui')],
 };
