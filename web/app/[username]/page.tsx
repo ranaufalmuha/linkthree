@@ -18,8 +18,6 @@ import {
   FaTelegram,
   FaLine,
   FaVk,
-  FaVoicemail,
-  FaMailchimp,
 } from 'react-icons/fa';
 import { IconType } from 'react-icons';
 import Link from 'next/link';
@@ -93,7 +91,7 @@ export default function Username() {
         url: 'https://www.ranaufalmuha.tech/',
       },
       {
-        name: 'Regis',
+        name: 'My Website',
         image_background:
           'https://img.freepik.com/premium-photo/blockchain-digital-data-transmission-isometric-background-nft-nonfungible-token-concept-3d-illustration_1257429-4593.jpg',
         url: 'https://www.ranaufalmuha.tech/',
