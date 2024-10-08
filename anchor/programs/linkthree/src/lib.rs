@@ -6,6 +6,8 @@ declare_id!("CWPtWybP2yNXgPHWnzSuCjyoTaXqzbcGu52THbNdvV6t");
 
 #[program]
 pub mod linkthree {
+    use anchor_lang::solana_program::system_program;
+
     use super::*;
 
     // Close the Linkthree account
@@ -31,24 +33,51 @@ pub mod linkthree {
         Ok(())
     }
 
+    // ============================================
+
     // Initialize the Linkthree account
     pub fn initialize(
         ctx: Context<InitializeLinkthree>,
         owner: Pubkey,
         username: String,
-        name: String,
+        full_name: String,
         photo_profile: String,
         position: String,
         description: String,
+        social: [Social; 100],
+        links: [Link; 100],
     ) -> Result<()> {
         let linkthree = &mut ctx.accounts.linkthree;
+
+        // Check if username already exists using the PDA
+        let _username_key =
+            Pubkey::find_program_address(&[b"username", username.as_bytes()], ctx.program_id).0;
+
+        // Fail if the PDA account for the username already exists
+        if !ctx
+            .accounts
+            .username_account
+            .to_account_info()
+            .owner
+            .eq(&system_program::ID)
+        {
+            return Err(ErrorCode::UsernameAlreadyTaken.into());
+        }
+
         linkthree.count = 0;
         linkthree.owner = owner;
-        linkthree.username = username;
-        linkthree.name = name;
+        linkthree.username = username.clone();
+        linkthree.full_name = full_name;
         linkthree.photo_profile = photo_profile;
         linkthree.position = position;
         linkthree.description = description;
+        linkthree.social = social;
+        linkthree.links = links;
+
+        // Store the username in a PDA
+        let username_account = &mut ctx.accounts.username_account;
+        username_account.username = username;
+
         Ok(())
     }
 
@@ -56,67 +85,24 @@ pub mod linkthree {
     pub fn update_all(
         ctx: Context<Update>,
         new_username: String,
-        new_name: String,
+        new_full_name: String,
         new_photo_profile: String,
         new_position: String,
         new_description: String,
+        new_social: [Social; 100],
+        new_links: [Link; 100],
     ) -> Result<()> {
         let linkthree = &mut ctx.accounts.linkthree;
+
+        // Update profil
         linkthree.username = new_username;
-        linkthree.name = new_name;
+        linkthree.full_name = new_full_name;
         linkthree.photo_profile = new_photo_profile;
         linkthree.position = new_position;
         linkthree.description = new_description;
-        Ok(())
-    }
+        linkthree.social = new_social;
+        linkthree.links = new_links;
 
-    // Add or update a social entry in the array
-    pub fn upsert_social(ctx: Context<Update>, index: u8, icon: String, url: String) -> Result<()> {
-        let linkthree = &mut ctx.accounts.linkthree;
-        if (index as usize) < linkthree.social.len() {
-            linkthree.social[index as usize] = Social { icon, url };
-        }
-        Ok(())
-    }
-
-    // Add or update a link entry in the array
-    pub fn upsert_link(
-        ctx: Context<Update>,
-        index: u8,
-        image_background: String,
-        url: String,
-    ) -> Result<()> {
-        let linkthree = &mut ctx.accounts.linkthree;
-        if (index as usize) < linkthree.links.len() {
-            linkthree.links[index as usize] = Link {
-                image_background,
-                url,
-            };
-        }
-        Ok(())
-    }
-
-    // Delete a social entry by index
-    pub fn delete_social(ctx: Context<Update>, index: u8) -> Result<()> {
-        let linkthree = &mut ctx.accounts.linkthree;
-        if (index as usize) < linkthree.social.len() {
-            linkthree.social[index as usize] = Social {
-                icon: String::new(),
-                url: String::new(),
-            };
-        }
-        Ok(())
-    }
-
-    // Delete a link entry by index
-    pub fn delete_link(ctx: Context<Update>, index: u8) -> Result<()> {
-        let linkthree = &mut ctx.accounts.linkthree;
-        if (index as usize) < linkthree.links.len() {
-            linkthree.links[index as usize] = Link {
-                image_background: String::new(),
-                url: String::new(),
-            };
-        }
         Ok(())
     }
 }
@@ -132,6 +118,17 @@ pub struct InitializeLinkthree<'info> {
         payer = payer
     )]
     pub linkthree: Account<'info, Linkthree>,
+
+    // PDA to store the username
+    #[account(
+        init,
+        seeds = [b"username", linkthree.username.as_bytes()],
+        bump,
+        payer = payer,
+        space = 8 + 40 // Enough space for username storage
+    )]
+    pub username_account: Account<'info, UsernameAccount>,
+
     pub system_program: Program<'info, System>,
 }
 
@@ -153,6 +150,8 @@ pub struct Update<'info> {
     pub linkthree: Account<'info, Linkthree>,
 }
 
+// ============================================
+
 #[account]
 #[derive(InitSpace)]
 pub struct Linkthree {
@@ -162,7 +161,7 @@ pub struct Linkthree {
     #[max_len(20)]
     pub username: String,
     #[max_len(50)]
-    pub name: String,
+    pub full_name: String,
     #[max_len(500)]
     pub photo_profile: String,
     #[max_len(50)]
@@ -185,8 +184,22 @@ pub struct Social {
 #[derive(Clone, AnchorSerialize, AnchorDeserialize, InitSpace)]
 pub struct Link {
     // count: u8,
+    #[max_len(50)]
+    pub name: String,
     #[max_len(500)]
     pub image_background: String,
     #[max_len(500)]
     pub url: String,
+}
+
+// PDA to track the username uniqueness
+#[account]
+pub struct UsernameAccount {
+    pub username: String,
+}
+
+#[error_code]
+pub enum ErrorCode {
+    #[msg("The username is already taken.")]
+    UsernameAlreadyTaken,
 }
