@@ -35,6 +35,7 @@ pub mod linkthree {
     pub fn initialize(
         ctx: Context<InitializeLinkthree>,
         owner: Pubkey,
+        username: String,
         name: String,
         photo_profile: String,
         position: String,
@@ -43,6 +44,7 @@ pub mod linkthree {
         let linkthree = &mut ctx.accounts.linkthree;
         linkthree.count = 0;
         linkthree.owner = owner;
+        linkthree.username = username;
         linkthree.name = name;
         linkthree.photo_profile = photo_profile;
         linkthree.position = position;
@@ -53,12 +55,14 @@ pub mod linkthree {
     // Function to update all attributes at once
     pub fn update_all(
         ctx: Context<Update>,
+        new_username: String,
         new_name: String,
         new_photo_profile: String,
         new_position: String,
         new_description: String,
     ) -> Result<()> {
         let linkthree = &mut ctx.accounts.linkthree;
+        linkthree.username = new_username;
         linkthree.name = new_name;
         linkthree.photo_profile = new_photo_profile;
         linkthree.position = new_position;
@@ -156,6 +160,8 @@ pub struct Linkthree {
 
     pub owner: Pubkey,
     #[max_len(20)]
+    pub username: String,
+    #[max_len(50)]
     pub name: String,
     #[max_len(500)]
     pub photo_profile: String,

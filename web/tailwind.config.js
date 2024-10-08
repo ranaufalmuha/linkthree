@@ -17,6 +17,8 @@ module.exports = {
         foreground: "var(--foreground)",
 
         "disabled": "#808080",
+        "accent-primary": "#522964",
+        "accent-secondary": "#C84FCB",
 
       }
     },

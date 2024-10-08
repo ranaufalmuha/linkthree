@@ -1,9 +1,106 @@
+// 'use client';
+
+// import { WalletButton } from '../solana/solana-provider';
+// import * as React from 'react';
+// import { ReactNode, Suspense, useEffect, useRef, useState } from 'react';
+
+// import Link from 'next/link';
+// import { usePathname } from 'next/navigation';
+
+// import { AccountChecker } from '../account/account-ui';
+// import {
+//   ClusterChecker,
+//   ClusterUiSelect,
+//   ExplorerLink,
+// } from '../cluster/cluster-ui';
+// import toast, { Toaster } from 'react-hot-toast';
+
+// export function UiLayout({
+//   children,
+//   links,
+// }: {
+//   children: ReactNode;
+//   links: { label: string; path: string }[];
+// }) {
+//   const pathname = usePathname();
+//   const [isUsername, setIsUsername] = useState(false);
+
+//   function checkShow() {
+//     const the = links.map((label, path) => label);
+//     console.log(the);
+//     console.log(pathname);
+//     for (let i = 0; i < the.length; i++) {
+//       console.log(the[i]['path']);
+//       if (pathname == the[i]['path'] || pathname != '/') {
+//         setIsUsername(true);
+//       } else {
+//         setIsUsername(false);
+//       }
+//     }
+//   }
+
+//   useEffect(() => {
+//     checkShow();
+//   }, []);
+
+//   return (
+//     <div className="">
+//       {isUsername ? (
+//         <div className="">{children}</div>
+//       ) : (
+//         <div className="h-full bg-background flex flex-col justify-between">
+//           <div className="navbar text-neutral-content flex-col md:flex-row space-y-2 md:space-y-0">
+//             <div className="flex-1">
+//               <Link className="btn btn-ghost normal-case text-xl" href="/">
+//                 <img className="h-8" alt="Logo" src="/logo.png" />
+//               </Link>
+//               <ul className="menu menu-horizontal px-1 space-x-2">
+//                 {links.map(({ label, path }) => (
+//                   <li key={path}>
+//                     <Link
+//                       className={pathname.startsWith(path) ? 'active' : ''}
+//                       href={path}
+//                     >
+//                       {label}
+//                     </Link>
+//                   </li>
+//                 ))}
+//               </ul>
+//             </div>
+//             {/* <div className="flex-none space-x-2">
+//           <WalletButton />
+//           <ClusterUiSelect />
+//         </div> */}
+//           </div>
+//           <ClusterChecker>
+//             <AccountChecker />
+//           </ClusterChecker>
+//           <div className="flex-grow mx-4 lg:mx-auto">
+//             <Suspense
+//               fallback={
+//                 <div className="text-center my-32">
+//                   <span className="loading loading-spinner loading-lg"></span>
+//                 </div>
+//               }
+//             >
+//               {children}
+//             </Suspense>
+//             <Toaster position="bottom-right" />
+//           </div>
+//           <footer className="footer footer-center p-4 bg-base-300 text-base-content">
+//             <p>Created by {'LinkThree'}</p>
+//           </footer>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
 'use client';
 
 import { WalletButton } from '../solana/solana-provider';
 import * as React from 'react';
-import { ReactNode, Suspense, useEffect, useRef } from 'react';
-
+import { ReactNode, Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -23,50 +120,78 @@ export function UiLayout({
   links: { label: string; path: string }[];
 }) {
   const pathname = usePathname();
+  const [counter, setCounter] = useState(0);
+  const [isUsernamePage, setIsUsernamePage] = useState(false);
+
+  function checkShow() {
+    console.log('Current Pathname:', pathname);
+
+    // Loop through the `links` array to see if the current pathname matches any of the predefined routes
+    const isPredefinedRoute = links.some(({ path }) =>
+      pathname.startsWith(path)
+    );
+
+    if (isPredefinedRoute || pathname === '/') {
+      setIsUsernamePage(false);
+    } else {
+      setIsUsernamePage(true);
+    }
+  }
+
+  useEffect(() => {
+    checkShow();
+  }, [pathname]);
 
   return (
-    <div className="h-full bg-background flex flex-col justify-between">
-      <div className="navbar text-neutral-content flex-col md:flex-row space-y-2 md:space-y-0">
-        <div className="flex-1">
-          <Link className="btn btn-ghost normal-case text-xl" href="/">
-            <img className="h-8" alt="Logo" src="/logo.png" />
-          </Link>
-          <ul className="menu menu-horizontal px-1 space-x-2">
-            {links.map(({ label, path }) => (
-              <li key={path}>
-                <Link
-                  className={pathname.startsWith(path) ? 'active' : ''}
-                  href={path}
-                >
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        {/* <div className="flex-none space-x-2">
-          <WalletButton />
-          <ClusterUiSelect />
-        </div> */}
-      </div>
-      <ClusterChecker>
-        <AccountChecker />
-      </ClusterChecker>
-      <div className="flex-grow mx-4 lg:mx-auto">
-        <Suspense
-          fallback={
-            <div className="text-center my-32">
-              <span className="loading loading-spinner loading-lg"></span>
+    <div className="">
+      {/* Conditionally render layout without navbar and footer for /username/[username] */}
+      {isUsernamePage ? (
+        <div className="h-dvh flex items-center justify-center">{children}</div>
+      ) : (
+        <div className="h-full bg-background flex flex-col justify-between">
+          <div className="navbar text-neutral-content flex-col md:flex-row space-y-2 md:space-y-0">
+            <div className="flex-1">
+              <Link className="btn btn-ghost normal-case text-xl" href="/">
+                <img className="h-8" alt="Logo" src="/logo.png" />
+              </Link>
+              <ul className="menu menu-horizontal px-1 space-x-2">
+                {links.map(({ label, path }) => (
+                  <li key={path}>
+                    <Link
+                      className={pathname.startsWith(path) ? 'active' : ''}
+                      href={path}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-          }
-        >
-          {children}
-        </Suspense>
-        <Toaster position="bottom-right" />
-      </div>
-      <footer className="footer footer-center p-4 bg-base-300 text-base-content">
-        <p>Created by {'LinkThree'}</p>
-      </footer>
+            <div className="flex-none space-x-2">
+              <WalletButton />
+              <ClusterUiSelect />
+            </div>
+          </div>
+          <ClusterChecker>
+            <AccountChecker />
+          </ClusterChecker>
+          <div className="flex-grow mx-4 lg:mx-auto">
+            <Suspense
+              fallback={
+                <div className="text-center my-32">
+                  <span className="loading loading-spinner loading-lg"></span>
+                </div>
+              }
+            >
+              {children}
+            </Suspense>
+            <Toaster position="bottom-right" />
+          </div>
+          <footer className="footer footer-center p-4 bg-base-300 text-base-content">
+            <p>Created by {'LinkThree'}</p>
+          </footer>
+        </div>
+      )}
     </div>
   );
 }
