@@ -14,6 +14,7 @@ module.exports = {
     extend: {
       colors: {
         background: "var(--background)",
+        "background-secondary": "#f5f5f5", 
         foreground: "var(--foreground)",
 
         "disabled": "#808080",

@@ -22,7 +22,7 @@ export function AccountBalance({ address }: { address: PublicKey }) {
   return (
     <div>
       <h1
-        className="text-5xl font-bold cursor-pointer"
+        className="font-bold cursor-pointer"
         onClick={() => query.refetch()}
       >
         {query.data ? <BalanceSol balance={query.data} /> : '...'} SOL
@@ -90,23 +90,23 @@ export function AccountButtons({ address }: { address: PublicKey }) {
         show={showSendModal}
         hide={() => setShowSendModal(false)}
       />
-      <div className="space-x-2">
+      <div className="space-x-2 flex justify-center">
         <button
           disabled={cluster.network?.includes('mainnet')}
-          className="btn btn-xs lg:btn-md btn-outline"
+          className="btn btn-sm btn-outline"
           onClick={() => setShowAirdropModal(true)}
         >
           Airdrop
         </button>
         <button
           disabled={wallet.publicKey?.toString() !== address.toString()}
-          className="btn btn-xs lg:btn-md btn-outline"
+          className="btn btn-sm btn-outline"
           onClick={() => setShowSendModal(true)}
         >
           Send
         </button>
         <button
-          className="btn btn-xs lg:btn-md btn-outline"
+          className="btn btn-sm btn-outline"
           onClick={() => setShowReceiveModal(true)}
         >
           Receive
